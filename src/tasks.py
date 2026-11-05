@@ -21,3 +21,16 @@ def tambah_tugas(judul, deadline):
     daftar_tugas.append(tugas)
     _id_berikutnya += 1
     return tugas
+
+
+def tampilkan_tugas():
+    """Cetak semua tugas dalam bentuk tabel sederhana."""
+    if not daftar_tugas:
+        print("Belum ada tugas.")
+        return
+
+    print(f"{'No':<4}{'Judul':<30}{'Deadline':<12}Status")
+    print("-" * 53)
+    for tugas in daftar_tugas:
+        status = "Selesai" if tugas["selesai"] else "Belum"
+        print(f"{tugas['id']:<4}{tugas['judul']:<30}{tugas['deadline']:<12}{status}")
