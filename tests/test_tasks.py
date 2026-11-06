@@ -45,5 +45,27 @@ class TestTampilkanTugas(unittest.TestCase):
         self.assertIn("Belum", output)
 
 
+class TestTandaiSelesai(unittest.TestCase):
+    def setUp(self):
+        tasks.daftar_tugas.clear()
+        tasks._id_berikutnya = 1
+
+    def test_tandai_selesai_mengubah_status(self):
+        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
+
+        hasil = tasks.tandai_selesai(1)
+
+        self.assertTrue(hasil["selesai"])
+        self.assertTrue(tasks.daftar_tugas[0]["selesai"])
+
+    def test_tandai_selesai_id_tidak_ditemukan(self):
+        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
+
+        hasil = tasks.tandai_selesai(99)
+
+        self.assertIsNone(hasil)
+        self.assertFalse(tasks.daftar_tugas[0]["selesai"])
+
+
 if __name__ == "__main__":
     unittest.main()

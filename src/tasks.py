@@ -34,3 +34,15 @@ def tampilkan_tugas():
     for tugas in daftar_tugas:
         status = "Selesai" if tugas["selesai"] else "Belum"
         print(f"{tugas['id']:<4}{tugas['judul']:<30}{tugas['deadline']:<12}{status}")
+
+
+def tandai_selesai(id_tugas):
+    """Tandai tugas dengan id tertentu sebagai selesai.
+
+    Mengembalikan tugas yang diubah, atau None kalau id tidak ditemukan.
+    """
+    for tugas in daftar_tugas:
+        if tugas["id"] == id_tugas:
+            tugas["selesai"] = True
+            return tugas
+    return None
