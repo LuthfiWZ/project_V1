@@ -67,5 +67,29 @@ class TestTandaiSelesai(unittest.TestCase):
         self.assertFalse(tasks.daftar_tugas[0]["selesai"])
 
 
+class TestHapusTugas(unittest.TestCase):
+    def setUp(self):
+        tasks.daftar_tugas.clear()
+        tasks._id_berikutnya = 1
+
+    def test_hapus_tugas_menghilangkan_data(self):
+        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
+        tasks.tambah_tugas("Presentasi Jaringan", "2026-11-25")
+
+        hasil = tasks.hapus_tugas(1)
+
+        self.assertEqual(hasil["judul"], "Laporan Basis Data")
+        self.assertEqual(len(tasks.daftar_tugas), 1)
+        self.assertEqual(tasks.daftar_tugas[0]["judul"], "Presentasi Jaringan")
+
+    def test_hapus_tugas_id_tidak_ditemukan(self):
+        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
+
+        hasil = tasks.hapus_tugas(99)
+
+        self.assertIsNone(hasil)
+        self.assertEqual(len(tasks.daftar_tugas), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

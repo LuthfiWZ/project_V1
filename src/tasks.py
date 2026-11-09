@@ -46,3 +46,15 @@ def tandai_selesai(id_tugas):
             tugas["selesai"] = True
             return tugas
     return None
+
+
+def hapus_tugas(id_tugas):
+    """Hapus tugas dengan id tertentu.
+
+    Mengembalikan tugas yang dihapus, atau None kalau id tidak ditemukan.
+    """
+    for tugas in daftar_tugas:
+        if tugas["id"] == id_tugas:
+            daftar_tugas.remove(tugas)
+            return tugas
+    return None
