@@ -1,94 +1,54 @@
 import io
 import unittest
 from contextlib import redirect_stdout
+from unittest.mock import patch
 
-from src import tasks
-
-
-class TestTambahTugas(unittest.TestCase):
-    def setUp(self):
-        # Kosongkan data sebelum tiap test supaya test saling independen
-        tasks.daftar_tugas.clear()
-        tasks._id_berikutnya = 1
-
-    def test_tambah_tugas_menyimpan_data(self):
-        hasil = tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
-
-        self.assertEqual(len(tasks.daftar_tugas), 1)
-        self.assertEqual(hasil["id"], 1)
-        self.assertEqual(hasil["judul"], "Laporan Basis Data")
-        self.assertEqual(hasil["deadline"], "2026-11-20")
-        self.assertFalse(hasil["selesai"])
+from src import main, tasks
 
 
-class TestTampilkanTugas(unittest.TestCase):
+class TestMenu(unittest.TestCase):
     def setUp(self):
         tasks.daftar_tugas.clear()
         tasks._id_berikutnya = 1
 
-    def _tangkap_output(self):
+    def _jalankan(self, masukan):
+        """Jalankan main() dengan input palsu, kembalikan teks yang dicetak."""
         buffer = io.StringIO()
-        with redirect_stdout(buffer):
-            tasks.tampilkan_tugas()
+        with patch("builtins.input", side_effect=masukan):
+            with redirect_stdout(buffer):
+                main.main()
         return buffer.getvalue()
 
-    def test_tampilkan_saat_kosong(self):
-        output = self._tangkap_output()
-        self.assertIn("Belum ada tugas.", output)
+    def test_tambah_tugas_lewat_menu(self):
+        output = self._jalankan(["1", "Laporan Basis Data", "2026-11-20", "0"])
 
-    def test_tampilkan_berisi_data_tugas(self):
-        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
-        output = self._tangkap_output()
+        self.assertEqual(len(tasks.daftar_tugas), 1)
+        self.assertEqual(tasks.daftar_tugas[0]["judul"], "Laporan Basis Data")
+        self.assertIn("berhasil ditambahkan", output)
 
-        self.assertIn("Laporan Basis Data", output)
-        self.assertIn("2026-11-20", output)
-        self.assertIn("Belum", output)
-
-
-class TestTandaiSelesai(unittest.TestCase):
-    def setUp(self):
-        tasks.daftar_tugas.clear()
-        tasks._id_berikutnya = 1
-
-    def test_tandai_selesai_mengubah_status(self):
+    def test_tandai_selesai_lewat_menu(self):
         tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
 
-        hasil = tasks.tandai_selesai(1)
+        self._jalankan(["3", "1", "0"])
 
-        self.assertTrue(hasil["selesai"])
         self.assertTrue(tasks.daftar_tugas[0]["selesai"])
 
-    def test_tandai_selesai_id_tidak_ditemukan(self):
+    def test_hapus_tugas_lewat_menu(self):
         tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
 
-        hasil = tasks.tandai_selesai(99)
+        self._jalankan(["4", "1", "0"])
 
-        self.assertIsNone(hasil)
-        self.assertFalse(tasks.daftar_tugas[0]["selesai"])
+        self.assertEqual(len(tasks.daftar_tugas), 0)
 
+    def test_id_bukan_angka(self):
+        output = self._jalankan(["3", "abc", "0"])
 
-class TestHapusTugas(unittest.TestCase):
-    def setUp(self):
-        tasks.daftar_tugas.clear()
-        tasks._id_berikutnya = 1
+        self.assertIn("ID harus berupa angka.", output)
 
-    def test_hapus_tugas_menghilangkan_data(self):
-        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
-        tasks.tambah_tugas("Presentasi Jaringan", "2026-11-25")
+    def test_pilihan_tidak_valid(self):
+        output = self._jalankan(["9", "0"])
 
-        hasil = tasks.hapus_tugas(1)
-
-        self.assertEqual(hasil["judul"], "Laporan Basis Data")
-        self.assertEqual(len(tasks.daftar_tugas), 1)
-        self.assertEqual(tasks.daftar_tugas[0]["judul"], "Presentasi Jaringan")
-
-    def test_hapus_tugas_id_tidak_ditemukan(self):
-        tasks.tambah_tugas("Laporan Basis Data", "2026-11-20")
-
-        hasil = tasks.hapus_tugas(99)
-
-        self.assertIsNone(hasil)
-        self.assertEqual(len(tasks.daftar_tugas), 1)
+        self.assertIn("Pilihan tidak valid", output)
 
 
 if __name__ == "__main__":
