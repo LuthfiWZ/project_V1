@@ -1,7 +1,20 @@
-"""Logika inti pengelolaan tugas (disimpan di memori dulu)."""
+"""Logika inti pengelolaan tugas (disimpan di memori dan file JSON)."""
+
+import json
+from pathlib import Path
+
+# Lokasi file data: <folder proyek>/data/tasks.json
+FILE_DATA = Path(__file__).resolve().parent.parent / "data" / "tasks.json"
 
 daftar_tugas = []
 _id_berikutnya = 1
+
+
+def simpan_tugas():
+    """Tulis seluruh daftar tugas ke file JSON."""
+    FILE_DATA.parent.mkdir(parents=True, exist_ok=True)
+    with open(FILE_DATA, "w", encoding="utf-8") as f:
+        json.dump(daftar_tugas, f, ensure_ascii=False, indent=2)
 
 
 def tambah_tugas(judul, deadline):
@@ -20,6 +33,7 @@ def tambah_tugas(judul, deadline):
     }
     daftar_tugas.append(tugas)
     _id_berikutnya += 1
+    simpan_tugas()
     return tugas
 
 
@@ -44,6 +58,7 @@ def tandai_selesai(id_tugas):
     for tugas in daftar_tugas:
         if tugas["id"] == id_tugas:
             tugas["selesai"] = True
+            simpan_tugas()
             return tugas
     return None
 
@@ -56,5 +71,6 @@ def hapus_tugas(id_tugas):
     for tugas in daftar_tugas:
         if tugas["id"] == id_tugas:
             daftar_tugas.remove(tugas)
+            simpan_tugas()
             return tugas
     return None
