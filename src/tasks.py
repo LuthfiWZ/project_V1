@@ -1,6 +1,8 @@
 """Logika inti pengelolaan tugas (disimpan di memori dan file JSON)."""
 
 import json
+import re
+from datetime import datetime
 from pathlib import Path
 
 # Lokasi file data: <folder proyek>/data/tasks.json
@@ -8,6 +10,21 @@ FILE_DATA = Path(__file__).resolve().parent.parent / "data" / "tasks.json"
 
 daftar_tugas = []
 _id_berikutnya = 1
+
+
+def deadline_valid(teks):
+    """Cek apakah teks berformat YYYY-MM-DD dan tanggalnya benar-benar ada.
+
+    Contoh valid  : "2026-11-20"
+    Contoh salah  : "besok", "20-11-2026", "2026-2-5", "2026-02-30"
+    """
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", teks):
+        return False
+    try:
+        datetime.strptime(teks, "%Y-%m-%d")
+    except ValueError:
+        return False
+    return True
 
 
 def simpan_tugas():
@@ -49,8 +66,13 @@ def tambah_tugas(judul, deadline):
 
     judul    : nama tugas, contoh "Laporan Basis Data"
     deadline : string tanggal format YYYY-MM-DD, contoh "2026-11-20"
+
+    Melempar ValueError kalau format deadline salah.
     """
     global _id_berikutnya
+
+    if not deadline_valid(deadline):
+        raise ValueError("Deadline harus berformat YYYY-MM-DD dan tanggalnya valid.")
 
     tugas = {
         "id": _id_berikutnya,

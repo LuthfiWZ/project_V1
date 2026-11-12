@@ -9,7 +9,7 @@ from src.tasks import (
 )
 
 MENU = """
-=== Task Manager Kuliah v0.8 ===
+=== Task Manager Kuliah v0.9 ===
 1. Tambah tugas
 2. Lihat tugas
 3. Tandai tugas selesai
@@ -33,7 +33,11 @@ def menu_tambah():
     if not judul or not deadline:
         print("Judul dan deadline tidak boleh kosong.")
         return
-    tambah_tugas(judul, deadline)
+    try:
+        tambah_tugas(judul, deadline)
+    except ValueError as galat:
+        print(galat)
+        return
     print("Tugas berhasil ditambahkan.")
 
 
