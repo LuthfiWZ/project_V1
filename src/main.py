@@ -2,13 +2,14 @@
 
 from src.tasks import (
     hapus_tugas,
+    muat_tugas,
     tambah_tugas,
     tampilkan_tugas,
     tandai_selesai,
 )
 
 MENU = """
-=== Task Manager Kuliah v0.6 ===
+=== Task Manager Kuliah v0.8 ===
 1. Tambah tugas
 2. Lihat tugas
 3. Tandai tugas selesai
@@ -57,6 +58,8 @@ def menu_hapus():
 
 
 def main():
+    muat_tugas()
+
     while True:
         print(MENU)
         pilihan = input("Pilih menu: ").strip()

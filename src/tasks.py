@@ -17,6 +17,33 @@ def simpan_tugas():
         json.dump(daftar_tugas, f, ensure_ascii=False, indent=2)
 
 
+def muat_tugas():
+    """Baca daftar tugas dari file JSON ke memori.
+
+    - File belum ada: mulai dengan daftar kosong.
+    - File rusak (bukan JSON valid): tampilkan peringatan, mulai kosong.
+    - id berikutnya dihitung dari id terbesar yang ada + 1.
+    """
+    global _id_berikutnya
+
+    daftar_tugas.clear()
+    _id_berikutnya = 1
+
+    if not FILE_DATA.exists():
+        return
+
+    try:
+        with open(FILE_DATA, encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        print("Peringatan: file data rusak, mulai dengan daftar kosong.")
+        return
+
+    daftar_tugas.extend(data)
+    if daftar_tugas:
+        _id_berikutnya = max(tugas["id"] for tugas in daftar_tugas) + 1
+
+
 def tambah_tugas(judul, deadline):
     """Tambah tugas baru dan kembalikan tugas tersebut.
 
