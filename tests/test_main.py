@@ -20,7 +20,7 @@ class TestMenu(unittest.TestCase):
         return buffer.getvalue()
 
     def test_tambah_tugas_lewat_menu(self):
-        output = self._jalankan(["1", "Laporan Basis Data", "2026-11-20", "0"])
+        output = self._jalankan(["1", "Laporan Basis Data", "2026-11-20", "", "0"])
 
         self.assertEqual(len(tasks.daftar_tugas), 1)
         self.assertEqual(tasks.daftar_tugas[0]["judul"], "Laporan Basis Data")

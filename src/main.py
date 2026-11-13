@@ -1,6 +1,7 @@
 """Titik masuk aplikasi Task Manager Kuliah."""
 
 from src.tasks import (
+    deadline_valid,
     hapus_tugas,
     muat_tugas,
     tambah_tugas,
@@ -9,7 +10,7 @@ from src.tasks import (
 )
 
 MENU = """
-=== Task Manager Kuliah v0.9 ===
+=== Task Manager Kuliah v0.10 ===
 1. Tambah tugas
 2. Lihat tugas
 3. Tandai tugas selesai
@@ -33,11 +34,11 @@ def menu_tambah():
     if not judul or not deadline:
         print("Judul dan deadline tidak boleh kosong.")
         return
-    try:
-        tambah_tugas(judul, deadline)
-    except ValueError as galat:
-        print(galat)
+    if not deadline_valid(deadline):
+        print("Deadline harus berformat YYYY-MM-DD dan tanggalnya valid.")
         return
+    kategori = input("Mata kuliah (boleh kosong): ").strip()
+    tambah_tugas(judul, deadline, kategori)
     print("Tugas berhasil ditambahkan.")
 
 

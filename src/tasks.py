@@ -39,6 +39,7 @@ def muat_tugas():
 
     - File belum ada: mulai dengan daftar kosong.
     - File rusak (bukan JSON valid): tampilkan peringatan, mulai kosong.
+    - Data lama tanpa kategori diberi kategori kosong.
     - id berikutnya dihitung dari id terbesar yang ada + 1.
     """
     global _id_berikutnya
@@ -56,16 +57,19 @@ def muat_tugas():
         print("Peringatan: file data rusak, mulai dengan daftar kosong.")
         return
 
+    for tugas in data:
+        tugas.setdefault("kategori", "")
     daftar_tugas.extend(data)
     if daftar_tugas:
         _id_berikutnya = max(tugas["id"] for tugas in daftar_tugas) + 1
 
 
-def tambah_tugas(judul, deadline):
+def tambah_tugas(judul, deadline, kategori=""):
     """Tambah tugas baru dan kembalikan tugas tersebut.
 
     judul    : nama tugas, contoh "Laporan Basis Data"
     deadline : string tanggal format YYYY-MM-DD, contoh "2026-11-20"
+    kategori : mata kuliah (opsional), contoh "Basis Data"
 
     Melempar ValueError kalau format deadline salah.
     """
@@ -77,6 +81,7 @@ def tambah_tugas(judul, deadline):
     tugas = {
         "id": _id_berikutnya,
         "judul": judul,
+        "kategori": kategori,
         "deadline": deadline,
         "selesai": False,
     }
@@ -92,11 +97,15 @@ def tampilkan_tugas():
         print("Belum ada tugas.")
         return
 
-    print(f"{'No':<4}{'Judul':<30}{'Deadline':<12}Status")
-    print("-" * 53)
+    print(f"{'No':<4}{'Judul':<24}{'Kategori':<16}{'Deadline':<12}Status")
+    print("-" * 63)
     for tugas in daftar_tugas:
         status = "Selesai" if tugas["selesai"] else "Belum"
-        print(f"{tugas['id']:<4}{tugas['judul']:<30}{tugas['deadline']:<12}{status}")
+        kategori = tugas.get("kategori") or "-"
+        print(
+            f"{tugas['id']:<4}{tugas['judul']:<24}{kategori:<16}"
+            f"{tugas['deadline']:<12}{status}"
+        )
 
 
 def tandai_selesai(id_tugas):
