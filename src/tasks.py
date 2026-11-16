@@ -8,6 +8,8 @@ from pathlib import Path
 # Lokasi file data: <folder proyek>/data/tasks.json
 FILE_DATA = Path(__file__).resolve().parent.parent / "data" / "tasks.json"
 
+PRIORITAS_VALID = ("tinggi", "sedang", "rendah")
+
 daftar_tugas = []
 _id_berikutnya = 1
 
@@ -40,6 +42,7 @@ def muat_tugas():
     - File belum ada: mulai dengan daftar kosong.
     - File rusak (bukan JSON valid): tampilkan peringatan, mulai kosong.
     - Data lama tanpa kategori diberi kategori kosong.
+    - Data lama tanpa prioritas diberi prioritas "sedang".
     - id berikutnya dihitung dari id terbesar yang ada + 1.
     """
     global _id_berikutnya
@@ -59,29 +62,34 @@ def muat_tugas():
 
     for tugas in data:
         tugas.setdefault("kategori", "")
+        tugas.setdefault("prioritas", "sedang")
     daftar_tugas.extend(data)
     if daftar_tugas:
         _id_berikutnya = max(tugas["id"] for tugas in daftar_tugas) + 1
 
 
-def tambah_tugas(judul, deadline, kategori=""):
+def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
     """Tambah tugas baru dan kembalikan tugas tersebut.
 
-    judul    : nama tugas, contoh "Laporan Basis Data"
-    deadline : string tanggal format YYYY-MM-DD, contoh "2026-11-20"
-    kategori : mata kuliah (opsional), contoh "Basis Data"
+    judul     : nama tugas, contoh "Laporan Basis Data"
+    deadline  : string tanggal format YYYY-MM-DD, contoh "2026-11-20"
+    kategori  : mata kuliah (opsional), contoh "Basis Data"
+    prioritas : "tinggi", "sedang" (default), atau "rendah"
 
-    Melempar ValueError kalau format deadline salah.
+    Melempar ValueError kalau deadline atau prioritas tidak valid.
     """
     global _id_berikutnya
 
     if not deadline_valid(deadline):
         raise ValueError("Deadline harus berformat YYYY-MM-DD dan tanggalnya valid.")
+    if prioritas not in PRIORITAS_VALID:
+        raise ValueError("Prioritas harus tinggi, sedang, atau rendah.")
 
     tugas = {
         "id": _id_berikutnya,
         "judul": judul,
         "kategori": kategori,
+        "prioritas": prioritas,
         "deadline": deadline,
         "selesai": False,
     }
@@ -97,14 +105,18 @@ def tampilkan_tugas():
         print("Belum ada tugas.")
         return
 
-    print(f"{'No':<4}{'Judul':<24}{'Kategori':<16}{'Deadline':<12}Status")
-    print("-" * 63)
+    print(
+        f"{'No':<4}{'Judul':<22}{'Kategori':<14}"
+        f"{'Prioritas':<10}{'Deadline':<12}Status"
+    )
+    print("-" * 69)
     for tugas in daftar_tugas:
         status = "Selesai" if tugas["selesai"] else "Belum"
         kategori = tugas.get("kategori") or "-"
+        prioritas = tugas.get("prioritas", "sedang")
         print(
-            f"{tugas['id']:<4}{tugas['judul']:<24}{kategori:<16}"
-            f"{tugas['deadline']:<12}{status}"
+            f"{tugas['id']:<4}{tugas['judul']:<22}{kategori:<14}"
+            f"{prioritas:<10}{tugas['deadline']:<12}{status}"
         )
 
 

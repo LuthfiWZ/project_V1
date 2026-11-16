@@ -54,7 +54,7 @@ class TestKategori(unittest.TestCase):
         self.assertIn("-", output)
 
     def test_menu_tambah_dengan_kategori(self):
-        masukan = ["1", "Laporan", "2026-11-20", "Basis Data", "0"]
+        masukan = ["1", "Laporan", "2026-11-20", "Basis Data", "", "0"]
         with patch("builtins.input", side_effect=masukan):
             with redirect_stdout(io.StringIO()):
                 main.main()

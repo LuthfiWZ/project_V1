@@ -1,6 +1,7 @@
 """Titik masuk aplikasi Task Manager Kuliah."""
 
 from src.tasks import (
+    PRIORITAS_VALID,
     deadline_valid,
     hapus_tugas,
     muat_tugas,
@@ -10,7 +11,7 @@ from src.tasks import (
 )
 
 MENU = """
-=== Task Manager Kuliah v0.10 ===
+=== Task Manager Kuliah v0.11 ===
 1. Tambah tugas
 2. Lihat tugas
 3. Tandai tugas selesai
@@ -38,7 +39,12 @@ def menu_tambah():
         print("Deadline harus berformat YYYY-MM-DD dan tanggalnya valid.")
         return
     kategori = input("Mata kuliah (boleh kosong): ").strip()
-    tambah_tugas(judul, deadline, kategori)
+    prioritas = input("Prioritas (tinggi/sedang/rendah, kosong = sedang): ")
+    prioritas = prioritas.strip().lower() or "sedang"
+    if prioritas not in PRIORITAS_VALID:
+        print("Prioritas harus tinggi, sedang, atau rendah.")
+        return
+    tambah_tugas(judul, deadline, kategori, prioritas)
     print("Tugas berhasil ditambahkan.")
 
 
