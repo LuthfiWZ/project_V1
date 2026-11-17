@@ -1,47 +1,25 @@
 """Logika inti pengelolaan tugas (disimpan di memori dan file JSON)."""
 
-import json
-import re
-from datetime import datetime
 from pathlib import Path
+
+from src import storage, tampilan
+from src.validasi import PRIORITAS_VALID, STATUS_VALID, deadline_valid
 
 # Lokasi file data: <folder proyek>/data/tasks.json
 FILE_DATA = Path(__file__).resolve().parent.parent / "data" / "tasks.json"
-
-PRIORITAS_VALID = ("tinggi", "sedang", "rendah")
-STATUS_VALID = ("selesai", "belum")
 
 daftar_tugas = []
 _id_berikutnya = 1
 
 
-def deadline_valid(teks):
-    """Cek apakah teks berformat YYYY-MM-DD dan tanggalnya benar-benar ada.
-
-    Contoh valid  : "2026-11-20"
-    Contoh salah  : "besok", "20-11-2026", "2026-2-5", "2026-02-30"
-    """
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", teks):
-        return False
-    try:
-        datetime.strptime(teks, "%Y-%m-%d")
-    except ValueError:
-        return False
-    return True
-
-
 def simpan_tugas():
     """Tulis seluruh daftar tugas ke file JSON."""
-    FILE_DATA.parent.mkdir(parents=True, exist_ok=True)
-    with open(FILE_DATA, "w", encoding="utf-8") as f:
-        json.dump(daftar_tugas, f, ensure_ascii=False, indent=2)
+    storage.tulis_json(FILE_DATA, daftar_tugas)
 
 
 def muat_tugas():
     """Baca daftar tugas dari file JSON ke memori.
 
-    - File belum ada: mulai dengan daftar kosong.
-    - File rusak (bukan JSON valid): tampilkan peringatan, mulai kosong.
     - Data lama tanpa kategori diberi kategori kosong.
     - Data lama tanpa prioritas diberi prioritas "sedang".
     - id berikutnya dihitung dari id terbesar yang ada + 1.
@@ -51,16 +29,7 @@ def muat_tugas():
     daftar_tugas.clear()
     _id_berikutnya = 1
 
-    if not FILE_DATA.exists():
-        return
-
-    try:
-        with open(FILE_DATA, encoding="utf-8") as f:
-            data = json.load(f)
-    except json.JSONDecodeError:
-        print("Peringatan: file data rusak, mulai dengan daftar kosong.")
-        return
-
+    data = storage.baca_json(FILE_DATA)
     for tugas in data:
         tugas.setdefault("kategori", "")
         tugas.setdefault("prioritas", "sedang")
@@ -101,7 +70,7 @@ def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
 
 
 def cari_tugas(kata):
-    """Kembalikan daftar tugas yang judulnya mengandung kata (tanpa peduli huruf besar/kecil)."""
+    """Kembalikan tugas yang judulnya mengandung kata (tanpa peduli huruf besar/kecil)."""
     kata = kata.strip().lower()
     return [t for t in daftar_tugas if kata in t["judul"].lower()]
 
@@ -128,30 +97,8 @@ def filter_tugas(kategori="", prioritas="", status=""):
 
 
 def tampilkan_tugas(daftar=None):
-    """Cetak tugas dalam bentuk tabel sederhana.
-
-    Tanpa argumen: cetak semua tugas. Dengan argumen: cetak daftar itu saja.
-    """
-    if daftar is None:
-        daftar = daftar_tugas
-
-    if not daftar:
-        print("Belum ada tugas.")
-        return
-
-    print(
-        f"{'No':<4}{'Judul':<22}{'Kategori':<14}"
-        f"{'Prioritas':<10}{'Deadline':<12}Status"
-    )
-    print("-" * 69)
-    for tugas in daftar:
-        status = "Selesai" if tugas["selesai"] else "Belum"
-        kategori = tugas.get("kategori") or "-"
-        prioritas = tugas.get("prioritas", "sedang")
-        print(
-            f"{tugas['id']:<4}{tugas['judul']:<22}{kategori:<14}"
-            f"{prioritas:<10}{tugas['deadline']:<12}{status}"
-        )
+    """Cetak tugas sebagai tabel. Tanpa argumen: cetak semua tugas."""
+    tampilan.cetak_tabel(daftar_tugas if daftar is None else daftar)
 
 
 def tandai_selesai(id_tugas):
