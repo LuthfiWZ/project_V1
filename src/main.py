@@ -2,7 +2,10 @@
 
 from src.tasks import (
     PRIORITAS_VALID,
+    STATUS_VALID,
+    cari_tugas,
     deadline_valid,
+    filter_tugas,
     hapus_tugas,
     muat_tugas,
     tambah_tugas,
@@ -11,11 +14,13 @@ from src.tasks import (
 )
 
 MENU = """
-=== Task Manager Kuliah v0.11 ===
+=== Task Manager Kuliah v0.12 ===
 1. Tambah tugas
 2. Lihat tugas
 3. Tandai tugas selesai
 4. Hapus tugas
+5. Cari tugas
+6. Filter tugas
 0. Keluar
 """
 
@@ -68,6 +73,38 @@ def menu_hapus():
         print("Tugas tidak ditemukan.")
 
 
+def menu_cari():
+    kata = input("Kata kunci judul: ").strip()
+    if not kata:
+        print("Kata kunci tidak boleh kosong.")
+        return
+    hasil = cari_tugas(kata)
+    if not hasil:
+        print("Tidak ada tugas yang cocok.")
+        return
+    tampilkan_tugas(hasil)
+
+
+def menu_filter():
+    kategori = input("Mata kuliah (kosong = semua): ").strip()
+    prioritas = input("Prioritas (tinggi/sedang/rendah, kosong = semua): ")
+    prioritas = prioritas.strip().lower()
+    status = input("Status (selesai/belum, kosong = semua): ").strip().lower()
+
+    if prioritas and prioritas not in PRIORITAS_VALID:
+        print("Prioritas harus tinggi, sedang, atau rendah.")
+        return
+    if status and status not in STATUS_VALID:
+        print("Status harus selesai atau belum.")
+        return
+
+    hasil = filter_tugas(kategori, prioritas, status)
+    if not hasil:
+        print("Tidak ada tugas yang cocok.")
+        return
+    tampilkan_tugas(hasil)
+
+
 def main():
     muat_tugas()
 
@@ -83,6 +120,10 @@ def main():
             menu_selesai()
         elif pilihan == "4":
             menu_hapus()
+        elif pilihan == "5":
+            menu_cari()
+        elif pilihan == "6":
+            menu_filter()
         elif pilihan == "0":
             print("Sampai jumpa!")
             break

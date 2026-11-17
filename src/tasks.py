@@ -9,6 +9,7 @@ from pathlib import Path
 FILE_DATA = Path(__file__).resolve().parent.parent / "data" / "tasks.json"
 
 PRIORITAS_VALID = ("tinggi", "sedang", "rendah")
+STATUS_VALID = ("selesai", "belum")
 
 daftar_tugas = []
 _id_berikutnya = 1
@@ -99,9 +100,42 @@ def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
     return tugas
 
 
-def tampilkan_tugas():
-    """Cetak semua tugas dalam bentuk tabel sederhana."""
-    if not daftar_tugas:
+def cari_tugas(kata):
+    """Kembalikan daftar tugas yang judulnya mengandung kata (tanpa peduli huruf besar/kecil)."""
+    kata = kata.strip().lower()
+    return [t for t in daftar_tugas if kata in t["judul"].lower()]
+
+
+def filter_tugas(kategori="", prioritas="", status=""):
+    """Kembalikan tugas yang cocok dengan semua syarat yang diisi.
+
+    kategori  : nama mata kuliah (tanpa peduli huruf besar/kecil), kosong = semua
+    prioritas : "tinggi"/"sedang"/"rendah", kosong = semua
+    status    : "selesai"/"belum", kosong = semua
+    """
+    hasil = []
+    for tugas in daftar_tugas:
+        if kategori and tugas.get("kategori", "").lower() != kategori.strip().lower():
+            continue
+        if prioritas and tugas.get("prioritas", "sedang") != prioritas:
+            continue
+        if status == "selesai" and not tugas["selesai"]:
+            continue
+        if status == "belum" and tugas["selesai"]:
+            continue
+        hasil.append(tugas)
+    return hasil
+
+
+def tampilkan_tugas(daftar=None):
+    """Cetak tugas dalam bentuk tabel sederhana.
+
+    Tanpa argumen: cetak semua tugas. Dengan argumen: cetak daftar itu saja.
+    """
+    if daftar is None:
+        daftar = daftar_tugas
+
+    if not daftar:
         print("Belum ada tugas.")
         return
 
@@ -110,7 +144,7 @@ def tampilkan_tugas():
         f"{'Prioritas':<10}{'Deadline':<12}Status"
     )
     print("-" * 69)
-    for tugas in daftar_tugas:
+    for tugas in daftar:
         status = "Selesai" if tugas["selesai"] else "Belum"
         kategori = tugas.get("kategori") or "-"
         prioritas = tugas.get("prioritas", "sedang")
