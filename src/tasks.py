@@ -46,10 +46,13 @@ def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
     kategori  : mata kuliah (opsional), contoh "Basis Data"
     prioritas : "tinggi", "sedang" (default), atau "rendah"
 
-    Melempar ValueError kalau deadline atau prioritas tidak valid.
+    Melempar ValueError kalau judul kosong, atau deadline/prioritas tidak valid.
     """
     global _id_berikutnya
 
+    judul = judul.strip()
+    if not judul:
+        raise ValueError("Judul tidak boleh kosong.")
     if not deadline_valid(deadline):
         raise ValueError("Deadline harus berformat YYYY-MM-DD dan tanggalnya valid.")
     if prioritas not in PRIORITAS_VALID:
