@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from src import storage, tampilan
+from src import logger, storage, tampilan
 from src.validasi import PRIORITAS_VALID, STATUS_VALID, deadline_valid
 
 # Lokasi file data: <folder proyek>/data/tasks.json
@@ -36,6 +36,7 @@ def muat_tugas():
     daftar_tugas.extend(data)
     if daftar_tugas:
         _id_berikutnya = max(tugas["id"] for tugas in daftar_tugas) + 1
+    logger.info(f"Data dimuat: {len(daftar_tugas)} tugas")
 
 
 def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
@@ -69,6 +70,7 @@ def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
     daftar_tugas.append(tugas)
     _id_berikutnya += 1
     simpan_tugas()
+    logger.info(f"Tugas ditambahkan: id={tugas['id']}, judul={judul}")
     return tugas
 
 
@@ -113,7 +115,9 @@ def tandai_selesai(id_tugas):
         if tugas["id"] == id_tugas:
             tugas["selesai"] = True
             simpan_tugas()
+            logger.info(f"Tugas ditandai selesai: id={id_tugas}")
             return tugas
+    logger.peringatan(f"Tandai selesai gagal: id={id_tugas} tidak ditemukan")
     return None
 
 
@@ -126,5 +130,7 @@ def hapus_tugas(id_tugas):
         if tugas["id"] == id_tugas:
             daftar_tugas.remove(tugas)
             simpan_tugas()
+            logger.info(f"Tugas dihapus: id={id_tugas}")
             return tugas
+    logger.peringatan(f"Hapus gagal: id={id_tugas} tidak ditemukan")
     return None

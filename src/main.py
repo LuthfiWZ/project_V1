@@ -1,5 +1,6 @@
 """Titik masuk aplikasi Task Manager Kuliah."""
 
+from src import logger
 from src.tasks import (
     PRIORITAS_VALID,
     STATUS_VALID,
@@ -14,7 +15,7 @@ from src.tasks import (
 )
 
 MENU = """
-=== Task Manager Kuliah v0.12 ===
+=== Task Manager Kuliah v0.15 ===
 1. Tambah tugas
 2. Lihat tugas
 3. Tandai tugas selesai
@@ -132,4 +133,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logger.aktifkan()
     main()
