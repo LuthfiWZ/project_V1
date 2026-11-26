@@ -74,6 +74,56 @@ def tambah_tugas(judul, deadline, kategori="", prioritas="sedang"):
     return tugas
 
 
+def ubah_tugas(
+    id_tugas,
+    judul=None,
+    deadline=None,
+    kategori=None,
+    prioritas=None,
+    selesai=None,
+):
+    """Ubah field tugas. Field yang bernilai None tidak diubah.
+
+    Mengembalikan tugas yang diubah, atau None kalau id tidak ditemukan.
+    Melempar ValueError kalau ada nilai yang tidak valid. Semua nilai
+    divalidasi dulu, jadi kalau ada yang salah, tidak ada yang berubah.
+    """
+    target = None
+    for tugas in daftar_tugas:
+        if tugas["id"] == id_tugas:
+            target = tugas
+            break
+    if target is None:
+        logger.peringatan(f"Ubah gagal: id={id_tugas} tidak ditemukan")
+        return None
+
+    if judul is not None:
+        judul = judul.strip()
+        if not judul:
+            raise ValueError("Judul tidak boleh kosong.")
+    if deadline is not None and not deadline_valid(deadline):
+        raise ValueError("Deadline harus berformat YYYY-MM-DD dan tanggalnya valid.")
+    if prioritas is not None and prioritas not in PRIORITAS_VALID:
+        raise ValueError("Prioritas harus tinggi, sedang, atau rendah.")
+    if selesai is not None and not isinstance(selesai, bool):
+        raise ValueError("Selesai harus true atau false.")
+
+    if judul is not None:
+        target["judul"] = judul
+    if deadline is not None:
+        target["deadline"] = deadline
+    if kategori is not None:
+        target["kategori"] = kategori.strip()
+    if prioritas is not None:
+        target["prioritas"] = prioritas
+    if selesai is not None:
+        target["selesai"] = selesai
+
+    simpan_tugas()
+    logger.info(f"Tugas diubah: id={id_tugas}")
+    return target
+
+
 def cari_tugas(kata):
     """Kembalikan tugas yang judulnya mengandung kata (tanpa peduli huruf besar/kecil)."""
     kata = kata.strip().lower()
