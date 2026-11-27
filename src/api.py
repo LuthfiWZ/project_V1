@@ -21,6 +21,13 @@ def create_app():
     def daftar_semua():
         return jsonify(tasks.daftar_tugas)
 
+    @app.get("/tugas/<int:id_tugas>")
+    def satu_tugas(id_tugas):
+        for tugas in tasks.daftar_tugas:
+            if tugas["id"] == id_tugas:
+                return jsonify(tugas)
+        return _galat("Tugas tidak ditemukan.", 404)
+
     @app.post("/tugas")
     def tambah():
         data = request.get_json(silent=True)
